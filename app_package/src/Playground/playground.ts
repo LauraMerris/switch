@@ -1,4 +1,5 @@
 import * as BABYLON from "@babylonjs/core";
+import * as GUI from '@babylonjs/gui';
 import "@babylonjs/loaders";
 
 import * as earcut from "earcut";
@@ -15,7 +16,7 @@ class Playground {
         let camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI /2, Math.PI / 3, 10, BABYLON.Vector3.Zero(), scene);
 
         // This targets the camera to scene origin
-        camera.setTarget(BABYLON.Vector3.Zero());
+        //camera.setTarget(BABYLON.Vector3.Zero());
 
         // This attaches the camera to the canvas
         camera.attachControl(canvas, true);
@@ -36,6 +37,9 @@ class Playground {
         const buttonMat = new BABYLON.StandardMaterial("buttonMat", scene);
         buttonMat.diffuseColor = new BABYLON.Color3(0, 0, 0);
 
+        // joycon colour
+        const joyconMat = new BABYLON.StandardMaterial("joyconMat", scene);
+        joyconMat.diffuseColor = new BABYLON.Color3(0, 1, 0);
 
         // Our built-in 'sphere' shape. Params: name, subdivs, size, scene
         //var sphere = BABYLON.Mesh.CreateSphere("sphere1", 16, 2, scene);
@@ -63,6 +67,9 @@ class Playground {
         
         const joycon = BABYLON.MeshBuilder.ExtrudePolygon("joycon", {shape: outline, depth: 0.3}, scene, earcut.default);
         //joycon.position.y = 2;
+        joycon.material = joyconMat;
+
+        camera.setTarget(joycon,true,false);
 
         // plus button
         let outlinePlus = [
@@ -118,6 +125,34 @@ class Playground {
 
         analogueRight.position = new BABYLON.Vector3(1.65,0,0.5);
         analogueRight.material = buttonMat;
+
+        
+     // GUI
+    var advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI",true,scene);
+
+    var panel = new GUI.StackPanel();
+    panel.width = "200px";
+    panel.isVertical = true;
+    panel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    panel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+    advancedTexture.addControl(panel);
+
+    var textBlock = new GUI.TextBlock();
+    textBlock.text = "Color:";
+    textBlock.color = "#fff";
+    textBlock.height = "30px";
+    panel.addControl(textBlock);     
+
+    var picker = new GUI.ColorPicker();
+    picker.value = joyconMat.diffuseColor;
+    picker.height = "150px";
+    picker.width = "150px";
+    picker.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+    picker.onValueChangedObservable.add(function(value) { // value is a color3
+        joyconMat.diffuseColor.copyFrom(value);
+    });
+
+    panel.addControl(picker);     
 
         return scene;
     }
