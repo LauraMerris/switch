@@ -15,8 +15,9 @@ class Playground {
         // camera and light
         let camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI /2, Math.PI / 3, 10, BABYLON.Vector3.Zero(), scene);
 
-        // This targets the camera to scene origin
-        //camera.setTarget(BABYLON.Vector3.Zero());
+        camera.allowUpsideDown = true;
+        camera.lowerBetaLimit = null;
+        camera.upperBetaLimit = null;
 
         // This attaches the camera to the canvas
         camera.attachControl(canvas, true);
