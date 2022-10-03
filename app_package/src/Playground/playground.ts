@@ -12,7 +12,7 @@ class Playground {
         //var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
 
         // camera and light
-        let camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI /2, Math.PI / 3, 20, BABYLON.Vector3.Zero(), scene);
+        let camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI /2, Math.PI / 3, 10, BABYLON.Vector3.Zero(), scene);
 
         // This targets the camera to scene origin
         camera.setTarget(BABYLON.Vector3.Zero());
@@ -25,6 +25,17 @@ class Playground {
 
         // Default intensity is 1. Let's dim the light a small amount
         light.intensity = 0.7;
+
+        // Marker for the origin
+        const origin = BABYLON.MeshBuilder.CreateSphere("origin",{diameter:0.1},scene);
+        const originMat = new BABYLON.StandardMaterial("originMat", scene);
+        originMat.diffuseColor = new BABYLON.Color3(1, 0, 0);
+        origin.material = originMat;
+
+        // standard button color
+        const buttonMat = new BABYLON.StandardMaterial("buttonMat", scene);
+        buttonMat.diffuseColor = new BABYLON.Color3(0, 0, 0);
+
 
         // Our built-in 'sphere' shape. Params: name, subdivs, size, scene
         //var sphere = BABYLON.Mesh.CreateSphere("sphere1", 16, 2, scene);
@@ -50,20 +61,64 @@ class Playground {
         outline.push(new BABYLON.Vector3(0,0,0.75));
 
         
-
         const joycon = BABYLON.MeshBuilder.ExtrudePolygon("joycon", {shape: outline, depth: 0.3}, scene, earcut.default);
-        joycon.position.y = 2;
+        //joycon.position.y = 2;
 
         // plus button
+        let outlinePlus = [
+            new BABYLON.Vector3(0,0,0),
+            new BABYLON.Vector3(0.15,0,0),
+            new BABYLON.Vector3(0.15,0,0.15),
+            new BABYLON.Vector3(0,0,0.15)
+        ];
 
+        const plus = BABYLON.MeshBuilder.ExtrudePolygon("plus",{shape: outlinePlus, depth:0.1}, scene, earcut.default);
+        plus.material = buttonMat;
+        plus.position = new BABYLON.Vector3(0.2,0.05,0.1);
 
-        // Our built-in 'ground' shape. Params: name, width, depth, subdivs, scene
-        //var ground = BABYLON.Mesh.CreateGround("ground1", 6, 6, 2, scene);
+        // A,B,X,Y buttons
         
-        //let groundMat = new BABYLON.StandardMaterial("materialGround", scene);
-        //groundMat.diffuseColor = new BABYLON.Color3(0,1,0);
-        //ground.material = groundMat;
+        // parent to easily position the buttons as one
         
+        let buttons = new BABYLON.TransformNode("buttons",scene);
+
+        const button = BABYLON.MeshBuilder.CreateCylinder("button",{diameter:0.24,height:0.1},scene);
+        button.material = buttonMat;
+
+        const buttonB = button.clone("buttonB");
+        buttonB.skeleton = null;
+        buttonB.position.x += 0.5;
+
+        const buttonY = button.clone("buttonY");
+        buttonY.skeleton = null;
+        buttonY.position.x += 0.25;
+        buttonY.position.z -= 0.25;
+
+        const buttonA = button.clone("buttonA");
+        buttonA.skeleton = null;
+        buttonA.position.x += 0.25;
+        buttonA.position.z += 0.25;
+
+        const buttonHome = button.clone("home");
+        buttonHome.skeleton = null;
+
+        button.parent = buttons;
+        buttonB.parent = buttons;
+        buttonY.parent = buttons;
+        buttonA.parent = buttons;
+
+        buttons.position = new BABYLON.Vector3(0.55,0,0.5);
+
+        buttonHome.position = new BABYLON.Vector3(2.2,0,0.325)
+
+        /* stick */
+        
+        const analogueRight = BABYLON.MeshBuilder.CreateCylinder("analogueRight",{diameter:0.4,height:0.1},scene);
+        button.material = buttonMat;
+
+        analogueRight.position = new BABYLON.Vector3(1.65,0,0.5);
+        analogueRight.material = buttonMat;
+
         return scene;
     }
 }
