@@ -44,18 +44,18 @@ class Playground {
         let outline = [
             new BABYLON.Vector3(0,0,0),
             new BABYLON.Vector3(3,0,0),
-            new BABYLON.Vector3(3,0,0.75)
+            new BABYLON.Vector3(3,0,0.5)
         ];
         
         //curved front
         for (let i = 0; i < 20; i++) {
-            outline.push(new BABYLON.Vector3((0.25 * Math.cos(i * Math.PI / 40)) + 2.75, 0, 0.25 * Math.sin(i * Math.PI / 40) + 0.75));
+            outline.push(new BABYLON.Vector3((0.5 * Math.cos(i * Math.PI / 40)) + 2.5, 0, 0.5 * Math.sin(i * Math.PI / 40) + 0.5));
         }
     
-        outline.push(new BABYLON.Vector3(0.25,0,1));
+        outline.push(new BABYLON.Vector3(0.5,0,1));
 
         for (let i = 20; i > 0; i--) {
-            outline.push(new BABYLON.Vector3((-0.25 * Math.cos(i * Math.PI / 40)) + 0.25, 0, 0.25 * Math.sin(i * Math.PI / 40) + 0.75));
+            outline.push(new BABYLON.Vector3((-0.5 * Math.cos(i * Math.PI / 40)) + 0.5, 0, 0.5 * Math.sin(i * Math.PI / 40) + 0.5));
         }
         
         const joycon = BABYLON.MeshBuilder.ExtrudePolygon("joycon", {shape: outline, depth: 0.3, sideOrientation:2, wrap:true}, scene, earcut.default);
