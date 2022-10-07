@@ -15,7 +15,7 @@ document.body.appendChild(title);
 
 const div = document.createElement("div");
 div.style.width = "80%";
-div.style.margin = "0 auto";
+div.style.margin = "2rem auto 0 auto";
 div.style.aspectRatio = "16 / 9";
 document.body.appendChild(div);
 

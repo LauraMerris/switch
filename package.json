@@ -17,6 +17,8 @@
     "recursive-install": "^1.4.0"
   },
   "dependencies": {
+    "babylonjs": "^5.26.1",
+    "babylonjs-gui": "^5.26.1",
     "earcut": "^2.2.4"
   }
 }
