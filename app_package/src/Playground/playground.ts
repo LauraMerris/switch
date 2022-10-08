@@ -1,6 +1,8 @@
 import * as BABYLON from "@babylonjs/core";
 import * as GUI from '@babylonjs/gui';
 import "@babylonjs/loaders";
+import { ArcRotateCameraKeyboardMoveInput, Vector3, Viewport } from "babylonjs";
+import { showWorldAxis} from '../axes.js';
 
 import * as earcut from "earcut";
 
@@ -9,22 +11,34 @@ class Playground {
         // This creates a basic Babylon Scene object (non-mesh)
         var scene = new BABYLON.Scene(engine);
 
+        showWorldAxis(scene,1,new Vector3(0,0,0));
+
         // This creates and positions a free camera (non-mesh)
         //var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
 
         // camera and light
-        let camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI /2, Math.PI / 3, 5, BABYLON.Vector3.Zero(), scene);
+        let camera = new BABYLON.ArcRotateCamera("Camera", 0, Math.PI/4, 7, BABYLON.Vector3.Zero(), scene);
 
         camera.allowUpsideDown = true;
-        camera.lowerBetaLimit = null;
-        camera.upperBetaLimit = null;
+        //camera.lowerBetaLimit = null;
+        //camera.upperBetaLimit = null;
+       
 
         // This attaches the camera to the canvas
         camera.attachControl(canvas, true);
 
-        const light = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(10, 10, 0),scene);
-        const light2 = new BABYLON.HemisphericLight("hemiLight2", new BABYLON.Vector3(10, -10, 0),scene);
-        light.intensity = 0.7;
+        camera.angularSensibilityX = 2000;
+        camera.angularSensibilityY = 2000;
+        camera.wheelPrecision = 10;
+        camera.lowerRadiusLimit = 3;
+        camera.upperRadiusLimit = 10;
+
+        //camera.inputs.removeByType("ArcRotateCameraKeyboardMoveInput");
+        //camera.inputs.removeByType("ArcRotateCameraMouseWheelInput");
+
+        const light = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(10, 10, -10),scene);
+        const light2 = new BABYLON.HemisphericLight("hemiLight2", new BABYLON.Vector3(-10, -10, -10),scene);
+        //light.intensity = 0.7;
 
         // Marker for the origin
         const origin = BABYLON.MeshBuilder.CreateSphere("origin",{diameter:0.1},scene);
@@ -63,7 +77,7 @@ class Playground {
         joycon.material = joyconMat;
         // end build right joycon
 
-        camera.setTarget(joycon,true,false);
+        camera.setTarget(joycon,true,true);
 
         // plus button
         let outlinePlus = [
@@ -120,56 +134,71 @@ class Playground {
         analogueRight.position = new BABYLON.Vector3(1.65,0,0.5);
         analogueRight.material = buttonMat;
 
+        // parent all elements to joycon
+        buttons.parent = joycon;
+        analogueRight.parent = joycon;
+        plus.parent = joycon;
+        buttonHome.parent = joycon;
+
         
-     // GUI
-    var advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI",true,scene);
+        // start GUI panel
+        var advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI",true,scene);
 
-    var panelBackground = new GUI.Rectangle();
-    panelBackground.width = "340px";
-    panelBackground.cornerRadius = 20;
-    panelBackground.background = "black";
-    panelBackground.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-    panelBackground.thickness = 0;
-    advancedTexture.addControl(panelBackground);
+        var panelBackground = new GUI.Rectangle();
+        panelBackground.width = "340px";
+        panelBackground.cornerRadius = 20;
+        panelBackground.background = "#fcfcf7";
+        panelBackground.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        panelBackground.thickness = 0;
+        panelBackground.color = "#e8e8e8";
+        panelBackground.paddingTop = "50px";
+        panelBackground.paddingLeft = "50px";
+        panelBackground.paddingBottom = "50px";
+        advancedTexture.addControl(panelBackground);
 
-    var panel = new GUI.StackPanel();
-    panel.width = "300px";
-    panel.isVertical = true;
-    panel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-    panel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
-    advancedTexture.addControl(panel);
+        var panel = new GUI.StackPanel();
+        panel.width = "300px";
+        panel.isVertical = true;
+        panel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        panel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        panelBackground.addControl(panel);
 
-    var textBlock = new GUI.TextBlock();
-    textBlock.text = "Joycon color:";
-    textBlock.color = "#fff";
-    textBlock.height = "30px";
-    panel.addControl(textBlock);     
+        var textBlock = new GUI.TextBlock();
+        textBlock.text = "Joycon colour:";
+        textBlock.color = "#333";
+        textBlock.height = "60px";
+        textBlock.fontSize = 30;
+        textBlock.paddingTop = "10px";
+        panel.addControl(textBlock);     
 
-    var picker = new GUI.ColorPicker();
-    picker.value = joyconMat.diffuseColor;
-    picker.height = "200px";
-    picker.width = "200px";
-    picker.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
-    picker.onValueChangedObservable.add(function(value) { // value is a color3
-        joyconMat.diffuseColor.copyFrom(value);
-    });
-    panel.addControl(picker);
+        var picker = new GUI.ColorPicker();
+        picker.value = joyconMat.diffuseColor;
+        picker.height = "200px";
+        picker.width = "200px";
+        picker.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        picker.onValueChangedObservable.add(function(value) { // value is a color3
+            joyconMat.diffuseColor.copyFrom(value);
+        });
+        panel.addControl(picker);
 
-    var buttonColorHeading = new GUI.TextBlock();
-    buttonColorHeading.text = "Button color:";
-    buttonColorHeading.color = "#fff";
-    buttonColorHeading.height = "60px";
-    panel.addControl(buttonColorHeading);     
+        var buttonColorHeading = new GUI.TextBlock();
+        buttonColorHeading.text = "Button colour:";
+        buttonColorHeading.color = "#333";
+        buttonColorHeading.height = "60px";
+        buttonColorHeading.fontSize = 30;
+        buttonColorHeading.paddingTop = "10px";
+        panel.addControl(buttonColorHeading);     
 
-    var buttonColorPicker = new GUI.ColorPicker();
-    buttonColorPicker.value = joyconMat.diffuseColor;
-    buttonColorPicker.height = "200px";
-    buttonColorPicker.width = "200px";
-    buttonColorPicker.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
-    buttonColorPicker.onValueChangedObservable.add(function(value) { // value is a color3
-        buttonMat.diffuseColor.copyFrom(value);
-    });
-    panel.addControl(buttonColorPicker);     
+        var buttonColorPicker = new GUI.ColorPicker();
+        buttonColorPicker.value = joyconMat.diffuseColor;
+        buttonColorPicker.height = "200px";
+        buttonColorPicker.width = "200px";
+        buttonColorPicker.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        buttonColorPicker.onValueChangedObservable.add(function(value) { // value is a color3
+            buttonMat.diffuseColor.copyFrom(value);
+        });
+        panel.addControl(buttonColorPicker);     
+        // end GUI panel
 
         return scene;
     }
