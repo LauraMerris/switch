@@ -1,23 +1,13 @@
 import { initializeBabylonApp } from "app_package";
+import "./style.css";
 
-document.body.style.width = "100%";
-document.body.style.height = "100%";
-document.body.style.margin = "0";
-document.body.style.padding = "0";
-
-/*
-const title = document.createElement("p");
-title.innerText = "Design your joycons";
-title.style.fontSize = "32pt";
-title.style.textAlign = "center";
-document.body.appendChild(title);
-*/
-
+// this is changing the display size of the canvas
 const div = document.createElement("div");
-div.style.width = "80%";
-div.style.margin = "2rem auto 0 auto";
-div.style.aspectRatio = "16 / 9";
+div.className = "model";
+//div.style.margin = "2rem auto 0 auto";
+//div.style.aspectRatio = "16 / 9";
 document.body.appendChild(div);
+
 
 const canvas = document.createElement("canvas");
 canvas.id = "renderCanvas";
@@ -25,6 +15,21 @@ canvas.style.width = "100%";
 canvas.style.height = "100%";
 canvas.style.display = "block";
 div.appendChild(canvas);
+
+
+//control panel
+let panel = document.createElement("div");
+panel.className = "UI";
+let button = document.createElement("button");
+button.className = "UIButton";
+button.setAttribute("id","joyconColorSelect");
+button.type = "button";
+button.textContent = "change colour";
+button.value = "red";
+
+panel.appendChild(button);
+div.appendChild(panel);
+
 
 let assetsHostUrl;
 if (DEV_BUILD) {
