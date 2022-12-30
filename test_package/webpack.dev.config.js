@@ -22,11 +22,20 @@ module.exports = {
     module: {
         rules: [
             {
+                test: /\.css$/,
+                use: [
+                  'style-loader',
+                  'css-loader'
+                ]
+              },        
+              {
                 test: /\.m?js/,
                 resolve: {
                     fullySpecified: false
                 }
-            }
+            },{
+
+            }      
         ],
     }
 };

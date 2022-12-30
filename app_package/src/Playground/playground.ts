@@ -1,9 +1,8 @@
 import * as BABYLON from "@babylonjs/core";
 import * as GUI from '@babylonjs/gui';
 import "@babylonjs/loaders";
-import { ArcRotateCameraKeyboardMoveInput, Vector3, Viewport } from "babylonjs";
+import { ArcRotateCameraKeyboardMoveInput, Color3, Vector3, Viewport } from "babylonjs";
 import { showWorldAxis} from '../axes.js';
-
 import * as earcut from "earcut";
 
 class Playground {
@@ -54,6 +53,14 @@ class Playground {
         const joyconMat = new BABYLON.StandardMaterial("joyconMat", scene);
         joyconMat.diffuseColor = new BABYLON.Color3(0, 1, 0);
 
+        // secondary button colour (home, share, bumpers)
+        const buttonSecondaryMat = new BABYLON.StandardMaterial("buttonSecondaryMat", scene);
+        buttonSecondaryMat.diffuseColor = new BABYLON.Color3(0 ,0 ,0);
+
+        // thumb cap color
+        const thumbCapMat = new BABYLON.StandardMaterial("thumbCapMat", scene);
+        thumbCapMat.diffuseColor = new BABYLON.Color3(0 ,0 ,0);
+
         // build right joycon
         let outline = [
             new BABYLON.Vector3(0,0,0),
@@ -81,14 +88,22 @@ class Playground {
 
         // plus button
         let outlinePlus = [
-            new BABYLON.Vector3(0,0,0),
-            new BABYLON.Vector3(0.15,0,0),
-            new BABYLON.Vector3(0.15,0,0.15),
-            new BABYLON.Vector3(0,0,0.15)
+            new BABYLON.Vector3(0.05,0,0),
+            new BABYLON.Vector3(0.1,0,0),
+            new BABYLON.Vector3(0.1,0,0.05),
+            new BABYLON.Vector3(0.15,0,0.05),
+            new BABYLON.Vector3(0.15,0,0.1),
+            new BABYLON.Vector3(0.1,0,0.1),
+            new BABYLON.Vector3(0.1,0,0.15),
+            new BABYLON.Vector3(0.05,0,0.15),
+            new BABYLON.Vector3(0.05,0,0.1),
+            new BABYLON.Vector3(0,0,0.1),
+            new BABYLON.Vector3(0,0,0.05),
+            new BABYLON.Vector3(0.05,0,0.05),
         ];
 
         const plus = BABYLON.MeshBuilder.ExtrudePolygon("plus",{shape: outlinePlus, depth:0.1}, scene, earcut.default);
-        plus.material = buttonMat;
+        plus.material = buttonSecondaryMat;
         plus.position = new BABYLON.Vector3(0.2,0.05,0.1);
 
         // A,B,X,Y buttons
@@ -116,6 +131,7 @@ class Playground {
 
         const buttonHome = button.clone("home");
         buttonHome.skeleton = null;
+        buttonHome.material = buttonSecondaryMat;
 
         button.parent = buttons;
         buttonB.parent = buttons;
@@ -128,20 +144,58 @@ class Playground {
 
         /* stick */
         
-        const analogueRight = BABYLON.MeshBuilder.CreateCylinder("analogueRight",{diameter:0.4,height:0.1},scene);
-        button.material = buttonMat;
+        //this will be the optional cap
+        //const thumbCap = BABYLON.MeshBuilder.CreateCylinder("analogueRight",{diameter:0.4,height:0.15},scene);
+        //thumbCap.material = thumbCapMat;
+        const analogueRight = BABYLON.MeshBuilder.CreateCylinder("analogueRight",{diameter:0.35,height:0.08},scene);
+        const analogueRightStalk = BABYLON.MeshBuilder.CreateCylinder("analogueRightStalk",{diameter:0.1,height:0.3},scene);
 
-        analogueRight.position = new BABYLON.Vector3(1.65,0,0.5);
-        analogueRight.material = buttonMat;
+        analogueRightStalk.position = new BABYLON.Vector3(1.65,0,0.5);
+        analogueRight.position = new BABYLON.Vector3(1.65,0.15,0.5);
+        analogueRight.material = buttonSecondaryMat;
+        analogueRightStalk.material = buttonSecondaryMat;
+
+        /* bumpers */
+        let outlineBumper = [
+            new BABYLON.Vector3(0,0,0),
+            new BABYLON.Vector3(0.5,0,0),
+            new BABYLON.Vector3(0.5,0,0.5)
+        ]
+
+        for (let i = 20; i > 0; i--) {
+            outlineBumper.push(new BABYLON.Vector3((-0.5 * Math.cos(i * Math.PI / 40)) + 0.5, 0, 0.5 * Math.sin(i * Math.PI / 40)));
+        }
+
+        const bumper = BABYLON.MeshBuilder.ExtrudePolygon("bumper", {shape: outlineBumper, depth: 0.1, sideOrientation:2, wrap:true}, scene, earcut.default);
+
+        bumper.material = buttonSecondaryMat;
+        bumper.position = new BABYLON.Vector3(-0.05, -0.05,0.55);
+
+        // mechanism
+        const mechanism = BABYLON.MeshBuilder.CreateBox("mechanism",{width:2.5,height:0.2,depth:0.1});
+        mechanism.material = buttonSecondaryMat;
+        mechanism.position = new BABYLON.Vector3(1.5,-0.15,-0.02);
+
+        const pill1 = BABYLON.MeshBuilder.CreateBox("pill1", {width:0.25,height:0.07,depth:0.15});
+        pill1.material = joyconMat;
+        pill1.position = new BABYLON.Vector3(0.75,-0.15,-0.02);
+
+        const pill2 = pill1.clone("pill2");
+        pill2.skeleton = null;
+        pill2.position.x += 1.5;
 
         // parent all elements to joycon
         buttons.parent = joycon;
         analogueRight.parent = joycon;
+        analogueRightStalk.parent = joycon;
         plus.parent = joycon;
         buttonHome.parent = joycon;
+        mechanism.parent = joycon;
+        pill1.parent = joycon;
 
         
         // start GUI panel
+        /*
         var advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI",true,scene);
 
         var panelBackground = new GUI.Rectangle();
@@ -173,8 +227,8 @@ class Playground {
 
         var picker = new GUI.ColorPicker();
         picker.value = joyconMat.diffuseColor;
-        picker.height = "200px";
-        picker.width = "200px";
+        picker.height = "150px";
+        picker.width = "150px";
         picker.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
         picker.onValueChangedObservable.add(function(value) { // value is a color3
             joyconMat.diffuseColor.copyFrom(value);
@@ -191,15 +245,52 @@ class Playground {
 
         var buttonColorPicker = new GUI.ColorPicker();
         buttonColorPicker.value = joyconMat.diffuseColor;
-        buttonColorPicker.height = "200px";
-        buttonColorPicker.width = "200px";
+        buttonColorPicker.height = "150px";
+        buttonColorPicker.width = "150px";
         buttonColorPicker.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
         buttonColorPicker.onValueChangedObservable.add(function(value) { // value is a color3
             buttonMat.diffuseColor.copyFrom(value);
         });
-        panel.addControl(buttonColorPicker);     
-        // end GUI panel
+        panel.addControl(buttonColorPicker);
+        
+        var secondaryHeading = new GUI.TextBlock();
+        secondaryHeading.text = "Thumb grip:";
+        secondaryHeading.color = "#333";
+        secondaryHeading.height = "60px";
+        secondaryHeading.fontSize = 30;
+        secondaryHeading.paddingTop = "10px";
+        panel.addControl(secondaryHeading);     
 
+        var secondaryColorPicker = new GUI.ColorPicker();
+        secondaryColorPicker.value = joyconMat.diffuseColor;
+        secondaryColorPicker.height = "150px";
+        secondaryColorPicker.width = "150px";
+        secondaryColorPicker.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        secondaryColorPicker.onValueChangedObservable.add(function(value) { // value is a color3
+            buttonSecondaryMat.diffuseColor.copyFrom(value);
+        });
+        panel.addControl(secondaryColorPicker);
+        // end GUI panel
+        */
+
+        //let panel = document.createElement("div");
+        //panel.className = "UI";
+
+        //document.body.appendChild(panel);
+
+        // listeners for color changing
+
+        //joyconMat
+        //buttonMat
+        //buttonSecondaryMat
+        //thumbCapMat
+
+        function changeJoyconColor(){
+            joyconMat.diffuseColor.copyFrom(new BABYLON.Color3(1,1,1));
+        }
+
+        let trigger = document.getElementById("joyconColorSelect");
+        trigger?.addEventListener("click", changeJoyconColor);
         return scene;
     }
 }
