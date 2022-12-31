@@ -1,4 +1,4 @@
-import { Engine, Scene, ArcRotateCamera, DynamicTexture, Quaternion, Vector3, HemisphericLight, DeviceType, Mesh, MeshBuilder, DeviceSourceManager, SceneLoader, StandardMaterial, Texture, Color3, Animation, Tools, Space, Axis, AxesViewer } from "@babylonjs/core";
+import { DynamicTexture, Vector3, Mesh, StandardMaterial, Color3 } from "@babylonjs/core";
 
 const showWorldAxis = (scene, size, origin) => {
     var makeTextPlane = function(text, color, size) {

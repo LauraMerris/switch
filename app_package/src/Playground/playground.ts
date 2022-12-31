@@ -4,6 +4,9 @@ import "@babylonjs/loaders";
 import { ArcRotateCameraKeyboardMoveInput, Color3, Vector3, Viewport } from "babylonjs";
 import { showWorldAxis} from '../axes.js';
 import * as earcut from "earcut";
+import { sceneCamera } from "../sceneCamera.js";
+import { originMarker } from "../utils/originMarker.js";
+import { sceneLight } from "../sceneLight.js";
 
 class Playground {
     public static CreateScene(engine: BABYLON.Engine, canvas: HTMLCanvasElement): BABYLON.Scene {
@@ -16,34 +19,39 @@ class Playground {
         //var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
 
         // camera and light
-        let camera = new BABYLON.ArcRotateCamera("Camera", 0, Math.PI/4, 7, BABYLON.Vector3.Zero(), scene);
+        //let camera = new BABYLON.ArcRotateCamera("Camera", 0, Math.PI/4, 7, BABYLON.Vector3.Zero(), scene);
 
-        camera.allowUpsideDown = true;
+        //camera.allowUpsideDown = true;
         //camera.lowerBetaLimit = null;
         //camera.upperBetaLimit = null;
        
 
-        // This attaches the camera to the canvas
+        let camera = new sceneCamera(scene);
         camera.attachControl(canvas, true);
 
-        camera.angularSensibilityX = 2000;
-        camera.angularSensibilityY = 2000;
-        camera.wheelPrecision = 10;
-        camera.lowerRadiusLimit = 3;
-        camera.upperRadiusLimit = 10;
+        //camera.angularSensibilityX = 2000;
+        //camera.angularSensibilityY = 2000;
+        //camera.wheelPrecision = 10;
+        //camera.lowerRadiusLimit = 3;
+        //camera.upperRadiusLimit = 10;
 
         //camera.inputs.removeByType("ArcRotateCameraKeyboardMoveInput");
         //camera.inputs.removeByType("ArcRotateCameraMouseWheelInput");
 
-        const light = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(10, 10, -10),scene);
-        const light2 = new BABYLON.HemisphericLight("hemiLight2", new BABYLON.Vector3(-10, -10, -10),scene);
+        const light = new sceneLight("hemiLight", new BABYLON.Vector3(10, 10, -10), scene);
+        const light2 = new sceneLight("hemiLight2", new BABYLON.Vector3(-10, -10, -10), scene);
+
+        //const light = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(10, 10, -10),scene);
+        //const light2 = new BABYLON.HemisphericLight("hemiLight2", new BABYLON.Vector3(-10, -10, -10),scene);
         //light.intensity = 0.7;
 
         // Marker for the origin
-        const origin = BABYLON.MeshBuilder.CreateSphere("origin",{diameter:0.1},scene);
-        const originMat = new BABYLON.StandardMaterial("originMat", scene);
-        originMat.diffuseColor = new BABYLON.Color3(1, 0, 0);
-        origin.material = originMat;
+        //const origin = BABYLON.MeshBuilder.CreateSphere("origin",{diameter:0.1},scene);
+        //const originMat = new BABYLON.StandardMaterial("originMat", scene);
+        //originMat.diffuseColor = new BABYLON.Color3(1, 0, 0);
+        //origin.material = originMat;
+
+        let origin = new originMarker(scene);
 
         // standard button color
         const buttonMat = new BABYLON.StandardMaterial("buttonMat", scene);
